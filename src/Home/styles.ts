@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
   player: {
     width: '100%',
     backgroundColor: '#FFF',
-    height: 56,
+    height: 35,
     justifyContent: 'center',
     alignItems: 'center'
   },
