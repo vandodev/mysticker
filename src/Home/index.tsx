@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef} from 'react';
+import { captureRef } from 'react-native-view-shot';
 import { Camera, CameraType } from 'expo-camera';
-import { Image, SafeAreaView, ScrollView, TextInput, View } from 'react-native';
+import * as Sharing from 'expo-sharing';
+import { Image, SafeAreaView, ScrollView, TextInput, TouchableOpacity, View, Text } from 'react-native';
 
 import { Header } from '../components/Header';
 import { Button } from '../components/Button';
@@ -15,6 +17,12 @@ export function Home() {
   const [photo, setPhotoURI] = useState<null | string>(null);
 
   const cameraRef = useRef<Camera>(null);
+  const screenShotRef = useRef(null);
+
+  async function shareScreenShot() {
+    const screenshot = await captureRef(screenShotRef);
+    await Sharing.shareAsync("file://" + screenshot);
+  }
 
    async function handleTakePicture() {
     const photo = await cameraRef.current.takePictureAsync();
@@ -30,7 +38,7 @@ export function Home() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <View>
+        <View ref={screenShotRef} style={styles.sticker}>
           <Header position={positionSelected} />
 
           <View style={styles.picture}>
@@ -45,6 +53,7 @@ export function Home() {
                 <Image
                   source={{ uri: photo ? photo : 'https://images.gutefrage.net/media/fragen/bilder/meine-kamera-auf-windows-10-funktioniert-nicht-was-tun/0_big.jpg?v=1584606917000' }}
                   style={styles.camera}
+                  onLoad={shareScreenShot}
                 />
             }
             <View style={styles.player}>
@@ -60,6 +69,12 @@ export function Home() {
           onChangePosition={setPositionSelected}
           positionSelected={positionSelected}
         />
+
+        <TouchableOpacity onPress={() => setPhotoURI(null)}>
+          <Text style={styles.retry}>
+            Nova foto
+          </Text>
+        </TouchableOpacity>
 
         <Button title="Compartilhar" onPress={handleTakePicture} />
       </ScrollView>
